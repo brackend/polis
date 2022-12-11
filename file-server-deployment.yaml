@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose-resolved.yaml
+    kompose.version: 1.27.0 (b0ed6a2c9)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: file-server
+  name: file-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: file-server
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f docker-compose-resolved.yaml
+        kompose.version: 1.27.0 (b0ed6a2c9)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/polis-net: "true"
+        io.kompose.service: file-server
+    spec:
+      containers:
+        - image: docker.io/compdem/polis-file-server:prod
+          name: polis-file-server
+          resources: {}
+      restartPolicy: Always
+status: {}

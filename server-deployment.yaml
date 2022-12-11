@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose-resolved.yaml
+    kompose.version: 1.27.0 (b0ed6a2c9)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: server
+  name: server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: server
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f docker-compose-resolved.yaml
+        kompose.version: 1.27.0 (b0ed6a2c9)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/polis-net: "true"
+        io.kompose.service: server
+    spec:
+      containers:
+        - env:
+            - name: ADMIN_EMAILS
+              value: '[]'
+            - name: ADMIN_EMAIL_DATA_EXPORT
+            - name: ADMIN_EMAIL_DATA_EXPORT_TEST
+            - name: ADMIN_EMAIL_EMAIL_TEST
+            - name: ADMIN_UIDS
+              value: '[]'
+            - name: AWS_REGION
+              value: us-east-1
+            - name: DATABASE_FOR_READS_NAME
+              value: DATABASE_URL
+            - name: DATABASE_URL
+              value: postgres://postgres:oiPorg3Nrz0yqDLE@postgres:5432/polis-dev
+            - name: DEV_MODE
+              value: "true"
+            - name: DISABLE_INTERCOM
+              value: "true"
+            - name: DOMAIN_OVERRIDE
+              value: localhost:5000
+            - name: EMAIL_TRANSPORT_TYPES
+              value: maildev
+            - name: MATH_ENV
+              value: dev
+            - name: POLIS_FROM_ADDRESS
+              value: Example <team@example.com>
+            - name: PORT
+              value: "5000"
+            - name: SHOULD_USE_TRANSLATION_API
+              value: "false"
+            - name: STATIC_FILES_ADMINDASH_PORT
+              value: "8080"
+            - name: STATIC_FILES_HOST
+              value: file-server
+            - name: STATIC_FILES_PORT
+              value: "8080"
+            - name: STRIPE_SECRET_KEY
+              value: sk_test_NFBDEThkpHCYBzXPJuBlY8TW
+            - name: WEBSERVER_PASS
+              value: ws-pass
+            - name: WEBSERVER_USERNAME
+              value: ws-user
+          image: docker.io/compdem/polis-server:prod
+          name: server
+          resources: {}
+      restartPolicy: Always
+status: {}

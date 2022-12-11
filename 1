@@ -1,0 +1,98 @@
+networks:
+  polis-net: {}
+services:
+  file-server:
+    build:
+      args:
+        GIT_HASH: ''
+      context: /Users/darabracken/Documents/GitHub/polis
+      dockerfile: file-server/Dockerfile
+    container_name: polis-file-server
+    image: docker.io/compdem/polis-file-server:prod
+    networks:
+      polis-net: null
+  math:
+    build:
+      context: /Users/darabracken/Documents/GitHub/polis/math
+    container_name: polis-math
+    depends_on:
+      - postgres
+    environment:
+      DATABASE_URL: postgres://postgres:oiPorg3Nrz0yqDLE@postgres:5432/polis-dev
+      WEBSERVER_PASS: ws-pass
+      WEBSERVER_USERNAME: ws-user
+    image: docker.io/compdem/polis-math:prod
+    networks:
+      polis-net: null
+  nginx-proxy:
+    build:
+      context: /Users/darabracken/Documents/GitHub/polis/file-server
+      dockerfile: nginx.Dockerfile
+    container_name: polis-nginx-proxy
+    depends_on:
+      - server
+    environment:
+      TAG: prod
+    image: docker.io/compdem/polis-nginx-proxy:prod
+    networks:
+      polis-net: null
+    ports:
+    - published: 80
+      target: 80
+    - published: 443
+      target: 443
+  postgres:
+    build:
+      context: /Users/darabracken/Documents/GitHub/polis/server
+      dockerfile: Dockerfile-db
+    container_name: polis-postgres
+    environment:
+      POSTGRES_DB: polis-dev
+      POSTGRES_PASSWORD: oiPorg3Nrz0yqDLE
+      POSTGRES_USER: postgres
+    image: docker.io/compdem/polis-postgres:prod
+    networks:
+      polis-net: null
+    restart: always
+    volumes:
+    - backups:/backups:rw
+    - postgres:/var/lib/postgresql/data:rw
+  server:
+    build:
+      context: /Users/darabracken/Documents/GitHub/polis/server
+      dockerfile: Dockerfile
+    depends_on:
+      - file-server
+      - postgres
+    environment:
+      ADMIN_EMAILS: '[]'
+      ADMIN_EMAIL_DATA_EXPORT: ''
+      ADMIN_EMAIL_DATA_EXPORT_TEST: ''
+      ADMIN_EMAIL_EMAIL_TEST: ''
+      ADMIN_UIDS: '[]'
+      AWS_REGION: us-east-1
+      DATABASE_FOR_READS_NAME: DATABASE_URL
+      DATABASE_URL: postgres://postgres:oiPorg3Nrz0yqDLE@postgres:5432/polis-dev
+      DEV_MODE: "true"
+      DISABLE_INTERCOM: "true"
+      DOMAIN_OVERRIDE: localhost:5000
+      EMAIL_TRANSPORT_TYPES: maildev
+      MATH_ENV: dev
+      POLIS_FROM_ADDRESS: Example <team@example.com>
+      PORT: '5000'
+      SHOULD_USE_TRANSLATION_API: "false"
+      STATIC_FILES_ADMINDASH_PORT: '8080'
+      STATIC_FILES_HOST: file-server
+      STATIC_FILES_PORT: '8080'
+      STRIPE_SECRET_KEY: sk_test_NFBDEThkpHCYBzXPJuBlY8TW
+      WEBSERVER_PASS: ws-pass
+      WEBSERVER_USERNAME: ws-user
+    image: docker.io/compdem/polis-server:prod
+    networks:
+      polis-net: null
+    scale: 1
+version: '3.4'
+volumes:
+  backups: {}
+  postgres: {}
+
